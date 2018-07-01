@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "permissions": ["bookmarks"],
   "description":
-    "Toolbar Dial replaces the New Tab page and requires no configuration. Bookmarks in the \"Bookmarks bar\" folder will be shown in a grid that is similar to the Speed Dial in Opera browser.",
+    "Toolbar Dial replaces the New Tab page. Bookmarks in the \"Bookmarks bar\" folder will be shown in a grid that is similar to Opera.",
   "chrome_url_overrides": {
     "newtab": "dist/index.html"
   },
