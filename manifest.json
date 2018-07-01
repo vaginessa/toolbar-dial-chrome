@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Toolbar Dial",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "permissions": ["bookmarks"],
   "description":
     "Toolbar Dial replaces the New Tab page. Bookmarks in the \"Bookmarks bar\" folder will be shown in a grid that is similar to Opera.",
