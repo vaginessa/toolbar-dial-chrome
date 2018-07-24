@@ -4,7 +4,7 @@
   "version": "1.0.8",
   "permissions": ["bookmarks", "storage"],
   "description":
-    "Toolbar Dial replaces the New Tab page. Bookmarks and folders in the \"Bookmarks bar\" folder will be shown in a grid that is similar to Opera.",
+    "Toolbar Dial replaces the New Tab page. Bookmarks and folders in the \"Bookmarks bar\" folder will be shown in a grid like Opera.",
   "chrome_url_overrides": {
     "newtab": "dist/index.html"
   },
