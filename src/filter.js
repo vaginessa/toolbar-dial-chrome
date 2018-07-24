@@ -1,5 +1,3 @@
-import chromeBookmarks from "./bookmarks.js";
-
 const getLinkName = name => {
   name = /:\/\/(?:www\.)?(.*?)(?:\?|\/|$)/i.exec(name)[1].toLowerCase();
   return name.split(".");
@@ -18,24 +16,16 @@ const getType = url => {
   }
 };
 
-const data = () => {
-  const getBookmarks = async () => {
-    let bookmarks = [];
-    bookmarks = await chromeBookmarks();
-    try {
-      bookmarks = bookmarks.map(({ title, url }) => {
+export default bookmarks => {
+  return bookmarks
+    .filter(({ url = "" }) => !url.match(/^(javascript:|place:)/i))
+    .map(({ title, url, id, parentID, index }) => {
+      if (url) {
         let type = getType(url);
         let name = type === "link" ? getLinkName(url) : getFileName(url);
-        return { title, url, type, name };
-      });
-    } catch (e) {
-      console.log(`Error: ${e}`);
-    }
-
-    return { bookmarks };
-  };
-
-  return getBookmarks();
+        return { title, url, type, name, parentID, index };
+      } else {
+        return { type: "folder", title, name: [title], id, parentID, index };
+      }
+    });
 };
-
-export default data;

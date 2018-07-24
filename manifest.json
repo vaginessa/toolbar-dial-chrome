@@ -1,12 +1,15 @@
 {
   "manifest_version": 2,
   "name": "Toolbar Dial",
-  "version": "1.0.1",
-  "permissions": ["bookmarks"],
+  "version": "1.0.8",
+  "permissions": ["bookmarks", "storage"],
   "description":
-    "Toolbar Dial replaces the New Tab page. Bookmarks in the \"Bookmarks bar\" folder will be shown in a grid that is similar to Opera.",
+    "Toolbar Dial replaces the New Tab page. Bookmarks and folders in the \"Bookmarks bar\" folder will be shown in a grid that is similar to Opera.",
   "chrome_url_overrides": {
     "newtab": "dist/index.html"
+  },
+  "options_ui": {
+    "page": "dist/options.html"
   },
   "icons": {
     "32": "icons/icon-32.png",
