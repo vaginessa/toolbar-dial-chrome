@@ -1,6 +1,7 @@
-import { h, Component, render } from "preact";
-import "./index.css";
-import { css } from "preact-emotion";
+import React from "react";
+import { render } from "react-dom";
+import "./styles.css";
+import { css } from "emotion";
 import DefaultTheme from "./themes/default/index.js";
 import filter from "./filter.js";
 
@@ -11,7 +12,7 @@ const themes = {
 
 const rootFolder = { id: "1", title: "Bookmarks" };
 
-class App extends Component {
+class App extends React.Component {
   state = {
     bookmarks: [],
     theme: "DefaultLight",
@@ -48,15 +49,35 @@ class App extends Component {
     }
   };
 
-  receiveTheme = ({ theme }) => {
-    this.changeTheme({ theme: theme.newValue });
+  receiveOptions = change => {
+    if (change["theme"]) {
+      this.changeTheme({ theme: change["theme"]["newValue"] });
+    }
+    if (change["folder"]) {
+      rootFolder.id = change["folder"]["newValue"];
+      this.initialBookmarks();
+    }
   };
 
-  receiveBookmarks = () => {
+  initialBookmarks = () => {
     this.getBookmarks(rootFolder.id).then(bookmarks => {
       if (bookmarks) {
         this.setState({ bookmarks, currentFolder: rootFolder, path: [] });
       }
+    });
+  };
+
+  updateBookmarks = () => {
+    this.getBookmarks(this.state.currentFolder.id).then(bookmarks => {
+      if (bookmarks) {
+        this.setState({ bookmarks });
+      }
+    });
+  };
+
+  receiveBookmarks = () => {
+    chrome.bookmarks.get(this.state.currentFolder.id, () => {
+      this.updateBookmarks();
     });
   };
 
@@ -66,7 +87,11 @@ class App extends Component {
     try {
       bookmarks = await new Promise(resolve =>
         chrome.bookmarks.getChildren(folder, b => {
-          resolve(b);
+          if (!chrome.runtime.lastError) {
+            resolve(b);
+          } else {
+            resolve(this.getBookmarks("1"));
+          }
         })
       );
     } catch (e) {
@@ -76,15 +101,22 @@ class App extends Component {
   };
 
   getTheme = () => {
-    chrome.storage.local.get(["theme"], ({ theme }) =>
+    chrome.storage.local.get(["theme"], ({ theme = this.state.DefaultTheme }) =>
       this.changeTheme({ theme })
     );
   };
 
+  getDefaultFolder = () => {
+    chrome.storage.local.get(["folder"], ({ folder = rootFolder.id }) => {
+      rootFolder.id = folder;
+      this.initialBookmarks();
+    });
+  };
+
   componentDidMount() {
-    this.receiveBookmarks();
     this.getTheme();
-    chrome.storage.onChanged.addListener(this.receiveTheme);
+    this.getDefaultFolder();
+    chrome.storage.onChanged.addListener(this.receiveOptions);
     chrome.bookmarks.onChanged.addListener(this.receiveBookmarks);
     chrome.bookmarks.onCreated.addListener(this.receiveBookmarks);
     chrome.bookmarks.onMoved.addListener(this.receiveBookmarks);
@@ -93,7 +125,7 @@ class App extends Component {
   }
 
   componentWillUnmount() {
-    chrome.storage.onChanged.removeListener(this.receiveTheme);
+    chrome.storage.onChanged.removeListener(this.receiveOptions);
     chrome.bookmarks.onChanged.removeListener(this.receiveBookmarks);
     chrome.bookmarks.onCreated.removeListener(this.receiveBookmarks);
     chrome.bookmarks.onMoved.removeListener(this.receiveBookmarks);
@@ -116,7 +148,8 @@ class App extends Component {
     window.scrollTo(0, 0);
   }
 
-  render({}, { bookmarks, theme, path, currentFolder }) {
+  render() {
+    let { bookmarks, theme, path, currentFolder } = this.state;
     let noOutline = css({ outline: 0 });
 
     let Theme = themes[theme];
@@ -137,4 +170,4 @@ class App extends Component {
   }
 }
 
-render(<App />, document.body, document.body.lastElementChild);
+render(<App />, document.querySelector("#app"));

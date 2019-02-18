@@ -1,55 +1,84 @@
-import { h, Component, render } from "preact";
-import { css } from "preact-emotion";
 import "./options.css";
 
-let options = css({
-  padding: "0 5px 20px 20px"
-});
-
-class Options extends Component {
-  state = {
-    theme: "DefaultLight",
-    themes: [
-      { id: "DefaultLight", title: "Default (Light)" },
-      { id: "DefaultDark", title: "Default (Dark)" }
-    ]
-  };
-
-  getTheme = () => {
-    chrome.storage.local.get(["theme"], ({ theme }) =>
-      this.changeTheme({ theme })
-    );
-  };
-
-  changeTheme = ({ theme }) => {
-    if (theme) {
-      this.setState({
-        theme
-      });
-    }
-  };
-
-  componentDidMount() {
-    this.getTheme();
-  }
-
-  handleChange = e => {
-    this.setState({
-      theme: e.target.value
+function init() {
+  function getTheme() {
+    chrome.storage.local.get(["theme"], ({ theme = "DefaultLight" }) => {
+      themeDiv.className = theme;
     });
-    chrome.storage.local.set({ theme: e.target.value });
-  };
-
-  render({}, { theme, themes }) {
-    return (
-      <div>
-        <label class={options}>Theme: </label>
-        <select value={theme} onChange={this.handleChange}>
-          {themes.map(({ id, title }) => <option value={id}>{title}</option>)}
-        </select>
-      </div>
-    );
   }
+
+  function setTheme(theme) {
+    chrome.storage.local.set({ theme });
+    themeDiv.className = theme;
+  }
+
+  function setLightTheme() {
+    setTheme("DefaultLight");
+  }
+
+  function setDarkTheme() {
+    setTheme("DefaultDark");
+  }
+
+  function getFolder() {
+    chrome.storage.local.get(["folder"], ({ folder = "1" }) => {
+      updateFolders(folder);
+    });
+  }
+
+  function setFolder(e) {
+    chrome.storage.local.set({ folder: e.target.value });
+  }
+
+  function updateFolders(defaultFolder) {
+    let folders = "";
+
+    function addFolder(id, title) {
+      let selected = id === defaultFolder ? " selected" : "";
+      folders += `<option value="${id}"${selected}>${title}</option>`;
+    }
+
+    function makeIndent(indentLength) {
+      return "&nbsp;&nbsp;".repeat(indentLength);
+    }
+
+    function logItems(bookmarkItem, indent) {
+      if (!bookmarkItem.url) {
+        if (bookmarkItem.id !== "0") {
+          addFolder(
+            bookmarkItem.id,
+            `${makeIndent(indent)}${bookmarkItem.title}`
+          );
+          indent++;
+        }
+        if (bookmarkItem.children) {
+          bookmarkItem.children.forEach(child => logItems(child, indent));
+        }
+      }
+    }
+
+    function logTree(bookmarkItems) {
+      if (!chrome.runtime.lastError) {
+        logItems(bookmarkItems[0], 0);
+        selectFolder.innerHTML = folders;
+      } else {
+        console.log(`An error: ${chrome.runtime.lastError}`);
+      }
+    }
+
+    chrome.bookmarks.getTree(logTree);
+  }
+
+  let themeDiv = document.querySelector("#theme");
+  let lightButton = document.querySelector("#defaultLightBtn");
+  let darkButton = document.querySelector("#defaultDarkBtn");
+  let selectFolder = document.querySelector("#selectFolder");
+  getTheme();
+  getFolder();
+
+  lightButton.addEventListener("click", setLightTheme);
+  darkButton.addEventListener("click", setDarkTheme);
+  selectFolder.addEventListener("change", setFolder);
 }
 
-render(<Options />, document.body, document.body.lastElementChild);
+document.onload = init();
