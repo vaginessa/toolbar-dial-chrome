@@ -77,7 +77,11 @@ class App extends React.Component {
 
   receiveBookmarks = () => {
     chrome.bookmarks.get(this.state.currentFolder.id, () => {
-      this.updateBookmarks();
+      if (!chrome.runtime.lastError) {
+        this.updateBookmarks();
+      } else {
+        this.initialBookmarks();
+      }
     });
   };
 
