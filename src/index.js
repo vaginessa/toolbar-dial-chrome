@@ -17,7 +17,15 @@ class App extends React.Component {
     bookmarks: [],
     theme: "DefaultLight",
     currentFolder: rootFolder,
+    folderTarget: "new",
     path: []
+  };
+
+  getDefaultFolder = () => {
+    chrome.storage.local.get(["folder"], ({ folder = rootFolder.id }) => {
+      rootFolder.id = folder;
+      this.initialBookmarks();
+    });
   };
 
   changeFolder = ({ currentFolder = "", nextFolder }) => {
@@ -41,10 +49,30 @@ class App extends React.Component {
     );
   };
 
+  getTheme = () => {
+    chrome.storage.local.get(["theme"], ({ theme = this.state.DefaultTheme }) =>
+      this.changeTheme({ theme })
+    );
+  };
+
   changeTheme = ({ theme }) => {
     if (theme) {
       this.setState({
         theme
+      });
+    }
+  };
+
+  getTarget = () => {
+    chrome.storage.local.get(["target"], ({ target = "new" }) => {
+      this.changeTarget({ target });
+    });
+  };
+
+  changeTarget = ({ target }) => {
+    if (target) {
+      this.setState({
+        folderTarget: target
       });
     }
   };
@@ -57,30 +85,15 @@ class App extends React.Component {
       rootFolder.id = change["folder"]["newValue"];
       this.initialBookmarks();
     }
+    if (change["target"]) {
+      this.changeTarget({ target: change["target"]["newValue"] });
+    }
   };
 
   initialBookmarks = () => {
     this.getBookmarks(rootFolder.id).then(bookmarks => {
       if (bookmarks) {
         this.setState({ bookmarks, currentFolder: rootFolder, path: [] });
-      }
-    });
-  };
-
-  updateBookmarks = () => {
-    this.getBookmarks(this.state.currentFolder.id).then(bookmarks => {
-      if (bookmarks) {
-        this.setState({ bookmarks });
-      }
-    });
-  };
-
-  receiveBookmarks = () => {
-    chrome.bookmarks.get(this.state.currentFolder.id, () => {
-      if (!chrome.runtime.lastError) {
-        this.updateBookmarks();
-      } else {
-        this.initialBookmarks();
       }
     });
   };
@@ -104,22 +117,28 @@ class App extends React.Component {
     return filter(bookmarks).sort(sort);
   };
 
-  getTheme = () => {
-    chrome.storage.local.get(["theme"], ({ theme = this.state.DefaultTheme }) =>
-      this.changeTheme({ theme })
-    );
+  updateBookmarks = () => {
+    this.getBookmarks(this.state.currentFolder.id).then(bookmarks => {
+      if (bookmarks) {
+        this.setState({ bookmarks });
+      }
+    });
   };
 
-  getDefaultFolder = () => {
-    chrome.storage.local.get(["folder"], ({ folder = rootFolder.id }) => {
-      rootFolder.id = folder;
-      this.initialBookmarks();
+  receiveBookmarks = () => {
+    chrome.bookmarks.get(this.state.currentFolder.id, () => {
+      if (!chrome.runtime.lastError) {
+        this.updateBookmarks();
+      } else {
+        this.initialBookmarks();
+      }
     });
   };
 
   componentDidMount() {
     this.getTheme();
     this.getDefaultFolder();
+    this.getTarget();
     chrome.storage.onChanged.addListener(this.receiveOptions);
     chrome.bookmarks.onChanged.addListener(this.receiveBookmarks);
     chrome.bookmarks.onCreated.addListener(this.receiveBookmarks);
@@ -153,7 +172,7 @@ class App extends React.Component {
   }
 
   render() {
-    let { bookmarks, theme, path, currentFolder } = this.state;
+    let { bookmarks, theme, path, currentFolder, folderTarget } = this.state;
     let noOutline = css({ outline: 0 });
 
     let Theme = themes[theme];
@@ -166,7 +185,8 @@ class App extends React.Component {
             path,
             theme,
             changeFolder: this.changeFolder,
-            isRoot: currentFolder.id === rootFolder.id
+            isRoot: currentFolder.id === rootFolder.id,
+            folderTarget
           }}
         />
       </div>

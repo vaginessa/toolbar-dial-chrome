@@ -30,6 +30,16 @@ function init() {
     chrome.storage.local.set({ folder: e.target.value });
   }
 
+  async function getTarget() {
+    chrome.storage.local.get(["target"], ({ target = "new" }) => {
+      updateTarget(target);
+    });
+  }
+
+  function setTarget(e) {
+    chrome.storage.local.set({ target: e.target.value });
+  }
+
   function updateFolders(defaultFolder) {
     let folders = "";
 
@@ -69,16 +79,23 @@ function init() {
     chrome.bookmarks.getTree(logTree);
   }
 
+  function updateTarget(target) {
+    folderTarget.value = target;
+  }
+
   let themeDiv = document.querySelector("#theme");
   let lightButton = document.querySelector("#defaultLightBtn");
   let darkButton = document.querySelector("#defaultDarkBtn");
   let selectFolder = document.querySelector("#selectFolder");
+  let folderTarget = document.querySelector("#folderTarget");
   getTheme();
   getFolder();
+  getTarget();
 
   lightButton.addEventListener("click", setLightTheme);
   darkButton.addEventListener("click", setDarkTheme);
   selectFolder.addEventListener("change", setFolder);
+  folderTarget.addEventListener("change", setTarget);
 }
 
 document.onload = init();
