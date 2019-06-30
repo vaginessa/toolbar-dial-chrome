@@ -2,40 +2,41 @@
   "name": "toolbar-dial-chrome",
   "author": {
     "name": "Lucas Everett",
-    "email": "lucas@lucaseverett.codes",
-    "url": "http://lucaseverett.codes"
+    "email": "lucas@lucaseverett.dev",
+    "url": "http://lucaseverett.dev"
   },
-  "verion": "1.0.10",
+  "verion": "1.0.11",
   "description": "Uses bookmarks and folders in the 'Bookmarks Toolbar' folder to produce a grid similar to the Speed Dial in Opera browser.",
-  "homepage": "https://github.com/lucaseverett/Firefox-Toolbar-Dial",
+  "homepage": "https://github.com/lucaseverett/toolbar-dial-chrome",
   "keywords": [
-    "firefox",
-    "speed dial"
+    "chrome",
+    "speed dial",
+    "toolbar dial"
   ],
   "license": "MIT",
   "dependencies": {
-    "@emotion/core": "^10.0.7",
-    "@emotion/styled": "^10.0.7",
-    "emotion": "^10.0.7",
+    "@emotion/core": "^10.0.14",
+    "@emotion/styled": "^10.0.14",
+    "emotion": "^10.0.14",
     "fontawesome": "^5.6.3",
     "normalize.css": "^8.0.1",
-    "random-material-color": "^1.0.3",
-    "react": "^16.8.2",
-    "react-dom": "^16.8.2"
+    "random-material-color": "^1.0.5",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6"
   },
   "scripts": {
     "start": "parcel ./src/index.html --open --no-cache",
     "build": "rimraf dist && parcel build ./src/*.html --no-cache --public-url ./"
   },
   "devDependencies": {
-    "@babel/core": "^7.0.0-0",
-    "@babel/plugin-proposal-class-properties": "^7.3.3",
+    "@babel/core": "^7.4.5",
+    "@babel/plugin-proposal-class-properties": "^7.4.4",
     "@babel/plugin-transform-react-jsx": "^7.3.0",
-    "@babel/preset-env": "^7.3.1",
-    "@fortawesome/fontawesome-free": "^5.7.2",
-    "babel-plugin-emotion": "^10.0.7",
+    "@babel/preset-env": "^7.4.5",
+    "@fortawesome/fontawesome-free": "^5.9.0",
+    "babel-plugin-emotion": "^10.0.14",
     "babel-plugin-transform-inline-environment-variables": "^0.4.3",
-    "parcel-bundler": "^1.11.0",
+    "parcel-bundler": "^1.12.3",
     "rimraf": "^2.6.3"
   },
   "browserslist": [
