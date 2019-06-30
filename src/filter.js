@@ -1,6 +1,9 @@
 const getLinkName = name => {
-  name = /:\/\/(?:www\.)?(.*?)(?:\?|\/|$)/i.exec(name)[1].toLowerCase();
-  return name.split(".");
+  try {
+    name = /:\/\/(?:www\.)?(.*?)(?:\?|\/|$)/i.exec(name)[1].toLowerCase();
+  } finally {
+    return name.split(".");
+  }
 };
 
 const getFileName = name => {
@@ -9,7 +12,7 @@ const getFileName = name => {
 };
 
 const getType = url => {
-  if (/(http|ftp)/i.test(url)) {
+  if (/^(http|ftp)/i.test(url)) {
     return "link";
   } else {
     return "file";
@@ -18,12 +21,15 @@ const getType = url => {
 
 export default bookmarks => {
   return bookmarks
-    .filter(({ url = "" }) => !url.match(/^(javascript:|place:)/i))
+    .filter(
+      ({ url = "" }) =>
+        !url.match(/^(javascript|place|about|chrome|edge|file):/i)
+    )
     .map(({ title, url, id, parentID, index }) => {
       if (url) {
         let type = getType(url);
         let name = type === "link" ? getLinkName(url) : getFileName(url);
-        return { title, url, type, name, parentID, index };
+        return { title, url, type, name, id, parentID, index };
       } else {
         return { type: "folder", title, name: [title], id, parentID, index };
       }
